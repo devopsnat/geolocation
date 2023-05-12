@@ -1,4 +1,13 @@
 pipeline {
+  nathalie-jenkins
+     agent any
+     tools {
+  maven 'M2_HOME'
+}
+
+    triggers {
+  pollSCM('* * * * *')
+}
     agent any
     tools{
         maven 'M2_HOME'
@@ -8,6 +17,7 @@ pipeline {
     registryCredential = 'jenkins-ecr'
     dockerimage = ''
     }
+ main
     stages {
         stage('Checkout'){
             steps{
