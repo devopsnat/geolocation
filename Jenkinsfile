@@ -11,7 +11,8 @@ pipeline {
     stages {
         stage('Checkout'){
             steps{
-                git branch: 'https://github.com/devopsnat/geolocation.git'
+               git url: 'https://github.com/devopsnat/geolocation.git', branch: 'main'
+
             }
         }
         stage('Code Build') {
