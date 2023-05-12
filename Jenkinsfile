@@ -1,4 +1,5 @@
 pipeline {
+  nathalie-jenkins
      agent any
      tools {
   maven 'M2_HOME'
@@ -7,30 +8,48 @@ pipeline {
     triggers {
   pollSCM('* * * * *')
 }
+    agent any
+    tools{
+        maven 'M2_HOME'
+    }
+    environment {
+    registry = '156850239407.dkr.ecr.us-east-1.amazonaws.com/devop-repository'
+    registryCredential = 'jenkins-ecr'
+    dockerimage = ''
+    }
+ main
     stages {
-        stage('maven package') {
-            steps {
-                sh 'mvn clean'
-                sh 'mvn install'
-                sh 'mvn package'
+        stage('Checkout'){
+            steps{
+               git url: 'https://github.com/devopsnat/geolocation.git', branch: 'main'
+
             }
         }
-         stage('test') {
+        stage('Code Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        stage('Test') {
             steps {
                 sh 'mvn test'
-                
             }
         }
-         stage('test') {
+        stage('Build Image') {
             steps {
-                echo 'Test'
-               
+                script{
+                    dockerImage = docker.build registry + ":$BUILD_NUMBER"
+                } 
             }
         }
-         stage('deploy') {
-            steps {
-                echo 'Deployement'
+        stage('Deploy image') {
+            steps{
+                script{ 
+                    docker.withRegistry("https://"+registry,"ecr:us-east-1:"+registryCredential) {
+                        dockerImage.push()
+                    }
+                }
             }
-        }
+        }  
     }
 }
